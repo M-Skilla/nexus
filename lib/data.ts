@@ -1,0 +1,191 @@
+import type { Examination, Member } from "./types";
+
+export const examinations: Examination[] = [
+  {
+    id: "exam-001",
+    title: "Annual Mathematics Competition",
+    description:
+      "A challenging mathematics examination designed to test problem-solving skills and mathematical reasoning across multiple topics.",
+    date: "2023-11-15",
+    duration: "3 hours",
+    type: "Competition",
+  },
+  {
+    id: "exam-002",
+    title: "Science Olympiad Preliminary",
+    description:
+      "The first round of our Science Olympiad covering physics, chemistry, and biology concepts for high school students.",
+    date: "2023-12-05",
+    duration: "2.5 hours",
+    type: "Olympiad",
+  },
+  {
+    id: "exam-003",
+    title: "English Literature Analysis",
+    description:
+      "An examination focusing on critical analysis of classic and contemporary literature works studied throughout the semester.",
+    date: "2024-01-20",
+    duration: "2 hours",
+    type: "Assessment",
+  },
+  {
+    id: "exam-004",
+    title: "History and Social Studies",
+    description:
+      "Comprehensive assessment covering world history, civics, and current affairs with emphasis on analytical thinking.",
+    date: "2024-02-10",
+    duration: "2 hours",
+    type: "Assessment",
+  },
+  {
+    id: "exam-005",
+    title: "Computer Science Practical",
+    description:
+      "Hands-on programming examination testing algorithm design, coding efficiency, and problem-solving skills.",
+    date: "2024-02-25",
+    duration: "4 hours",
+    type: "Practical",
+  },
+  {
+    id: "exam-006",
+    title: "Foreign Languages Proficiency",
+    description:
+      "Joint examination for Spanish, French, and German language proficiency, testing reading, writing, and comprehension.",
+    date: "2024-03-15",
+    duration: "3 hours",
+    type: "Proficiency",
+  },
+  {
+    id: "exam-007",
+    title: "Advanced Physics Challenge",
+    description:
+      "Rigorous examination for advanced physics students covering mechanics, thermodynamics, and quantum physics.",
+    date: "2024-04-05",
+    duration: "3 hours",
+    type: "Challenge",
+  },
+  {
+    id: "exam-008",
+    title: "Creative Arts Portfolio Review",
+    description:
+      "Evaluation of student portfolios in visual arts, design, and digital media with presentation component.",
+    date: "2024-05-10",
+    duration: "1 day",
+    type: "Portfolio",
+  },
+  {
+    id: "exam-009",
+    title: "End of Year Comprehensive Assessment",
+    description:
+      "Final examination covering all core subjects taught throughout the academic year with emphasis on integrated knowledge.",
+    date: "2024-06-15",
+    duration: "5 hours",
+    type: "Final",
+  },
+];
+
+export const members: Member[] = [
+  {
+    id: "member-001",
+    name: "Dr. Sarah Johnson",
+    role: "Principal",
+    email: "s.johnson@westfield.edu",
+    phone: "(555) 123-4567",
+    bio: "Dr. Johnson has been leading Westfield School for over 15 years with a focus on academic excellence and student well-being.",
+    avatar: "/placeholder.svg?height=200&width=200",
+  },
+  {
+    id: "member-002",
+    name: "Prof. Michael Chen",
+    role: "Science Department Head",
+    email: "m.chen@westfield.edu",
+    phone: "(555) 234-5678",
+    bio: "Award-winning educator with expertise in physics and chemistry, leading our science department to national recognition.",
+    avatar: "/placeholder.svg?height=200&width=200",
+  },
+  {
+    id: "member-003",
+    name: "Ms. Emily Rodriguez",
+    role: "Mathematics Coordinator",
+    email: "e.rodriguez@westfield.edu",
+    bio: "Passionate about making mathematics accessible and engaging for all students through innovative teaching methods.",
+    avatar: "/placeholder.svg?height=200&width=200",
+  },
+  {
+    id: "member-004",
+    name: "Mr. James Wilson",
+    role: "English Department Head",
+    email: "j.wilson@westfield.edu",
+    phone: "(555) 345-6789",
+    bio: "Published author and dedicated educator focusing on developing critical thinking through literature analysis.",
+    avatar: "/placeholder.svg?height=200&width=200",
+  },
+  {
+    id: "member-005",
+    name: "Dr. Aisha Patel",
+    role: "Examinations Coordinator",
+    email: "a.patel@westfield.edu",
+    bio: "Responsible for organizing and overseeing all joint examinations, ensuring fair assessment and academic integrity.",
+    avatar: "/placeholder.svg?height=200&width=200",
+  },
+  {
+    id: "member-006",
+    name: "Mr. Robert Kim",
+    role: "Technology Specialist",
+    email: "r.kim@westfield.edu",
+    phone: "(555) 456-7890",
+    bio: "Integrating cutting-edge technology into education and managing digital assessment platforms.",
+    avatar: "/placeholder.svg?height=200&width=200",
+  },
+  {
+    id: "member-007",
+    name: "Ms. Olivia Thompson",
+    role: "Student Counselor",
+    email: "o.thompson@westfield.edu",
+    bio: "Supporting students through academic challenges and helping them prepare mentally for examinations.",
+    avatar: "/placeholder.svg?height=200&width=200",
+  },
+  {
+    id: "member-008",
+    name: "Dr. Thomas Okafor",
+    role: "History Department Head",
+    email: "t.okafor@westfield.edu",
+    phone: "(555) 567-8901",
+    bio: "Specializing in world history and civics education with a focus on critical analysis of historical events.",
+    avatar: "/placeholder.svg?height=200&width=200",
+  },
+  {
+    id: "member-009",
+    name: "Mrs. Jennifer Lee",
+    role: "Foreign Languages Coordinator",
+    email: "j.lee@westfield.edu",
+    bio: "Multilingual educator coordinating our comprehensive language programs and international exchange initiatives.",
+    avatar: "/placeholder.svg?height=200&width=200",
+  },
+  {
+    id: "member-010",
+    name: "Mr. David Martinez",
+    role: "Arts Department Head",
+    email: "d.martinez@westfield.edu",
+    phone: "(555) 678-9012",
+    bio: "Professional artist bringing real-world creative experience to our arts curriculum and portfolio assessments.",
+    avatar: "/placeholder.svg?height=200&width=200",
+  },
+  {
+    id: "member-011",
+    name: "Dr. Lisa Wong",
+    role: "Curriculum Developer",
+    email: "l.wong@westfield.edu",
+    bio: "Designing integrated curriculum that prepares students for both examinations and real-world applications of knowledge.",
+    avatar: "/placeholder.svg?height=200&width=200",
+  },
+  {
+    id: "member-012",
+    name: "Mr. Samuel Jackson",
+    role: "Physical Education Coordinator",
+    email: "s.jackson@westfield.edu",
+    phone: "(555) 789-0123",
+    bio: "Former professional athlete developing comprehensive physical education programs that complement academic excellence.",
+    avatar: "/placeholder.svg?height=200&width=200",
+  },
+];
