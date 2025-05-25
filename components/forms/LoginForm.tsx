@@ -1,5 +1,5 @@
 "use client";
-import { login } from "@/app/(auth)/login/action";
+
 import {
   Card,
   CardContent,
@@ -19,6 +19,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { login } from "@/app/(auth)/login/action";
 
 const LoginForm = () => {
   const router = useRouter();
@@ -36,10 +37,10 @@ const LoginForm = () => {
 
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     try {
-      await login(data);
-      router.replace("/");
-    } catch (error) {
-      toast.error("Invalid email or password");
+      await login(data.email, data.password);
+      toast.success("Login successful! Redirecting...");
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred during login.");
     }
   };
   return (
@@ -51,7 +52,7 @@ const LoginForm = () => {
             Enter your credentials to access the exam portal
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4 mt-5">
+        <CardContent className="mt-5 space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -61,7 +62,7 @@ const LoginForm = () => {
               {...register("email")}
             />
             {errors.email && (
-              <p className="text-red-500 text-sm">{errors.email.message}</p>
+              <p className="text-sm text-red-500">{errors.email.message}</p>
             )}
           </div>
           <div className="space-y-2">
@@ -69,25 +70,36 @@ const LoginForm = () => {
               <Label htmlFor="password">Password</Label>
               <Link
                 href="/forgot-password"
-                className="text-sm font-medium text-primary hover:underline"
+                className="text-primary text-sm font-medium hover:underline"
               >
                 Forgot password?
               </Link>
             </div>
             <Input id="password" type="password" {...register("password")} />
             {errors.password && (
-              <p className="text-red-500 text-sm">{errors.password.message}</p>
+              <p className="text-sm text-red-500">{errors.password.message}</p>
             )}
           </div>
         </CardContent>
-        <CardFooter>
-          <Button type="submit" className="w-full mt-5">
+        <CardFooter className="flex flex-col items-center">
+          <Button type="submit" className="mt-5 w-full">
             {isSubmitting ? (
-              <Loader2 className="animate-spin h-4 w-4" />
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <span>Sign In</span>
             )}
           </Button>
+          <div className="mt-6 text-center text-sm">
+            <p className="text-muted-foreground">
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/register"
+                className="text-primary font-medium hover:underline"
+              >
+                Register here
+              </Link>
+            </p>
+          </div>
         </CardFooter>
       </form>
     </Card>

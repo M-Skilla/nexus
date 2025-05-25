@@ -48,6 +48,48 @@ export type Database = {
           },
         ]
       }
+      grades: {
+        Row: {
+          created_at: string
+          end: number
+          id: number
+          remarks: string | null
+          start: number
+        }
+        Insert: {
+          created_at?: string
+          end: number
+          id?: number
+          remarks?: string | null
+          start: number
+        }
+        Update: {
+          created_at?: string
+          end?: number
+          id?: number
+          remarks?: string | null
+          start?: number
+        }
+        Relationships: []
+      }
+      grading: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
       group: {
         Row: {
           created_at: string
@@ -90,24 +132,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "invitation_from_fkey"
-            columns: ["from"]
-            isOneToOne: false
-            referencedRelation: "staff"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "invitation_joint_fkey"
             columns: ["joint"]
             isOneToOne: false
             referencedRelation: "joint"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invitation_to_fkey"
-            columns: ["to"]
-            isOneToOne: false
-            referencedRelation: "staff"
             referencedColumns: ["id"]
           },
         ]
@@ -138,6 +166,45 @@ export type Database = {
           start_date?: string
         }
         Relationships: []
+      }
+      marks: {
+        Row: {
+          created_at: string
+          id: number
+          marks: number
+          student: string
+          subject: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          marks: number
+          student: string
+          subject: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          marks?: number
+          student?: string
+          subject?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marks_student_fkey"
+            columns: ["student"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marks_subject_fkey"
+            columns: ["subject"]
+            isOneToOne: false
+            referencedRelation: "subject"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
@@ -247,30 +314,39 @@ export type Database = {
       staff: {
         Row: {
           created_at: string
-          gender: string
+          first_name: string
+          gender: Database["public"]["Enums"]["GENDER"]
           group: number | null
-          id: number
-          image_url: string | null
-          name: string
-          user_id: string
+          id: string
+          is_owner: boolean
+          last_name: string
+          middle_name: string
+          school: string | null
+          subject: number | null
         }
         Insert: {
           created_at?: string
-          gender: string
+          first_name: string
+          gender?: Database["public"]["Enums"]["GENDER"]
           group?: number | null
-          id?: number
-          image_url?: string | null
-          name: string
-          user_id: string
+          id?: string
+          is_owner?: boolean
+          last_name: string
+          middle_name: string
+          school?: string | null
+          subject?: number | null
         }
         Update: {
           created_at?: string
-          gender?: string
+          first_name?: string
+          gender?: Database["public"]["Enums"]["GENDER"]
           group?: number | null
-          id?: number
-          image_url?: string | null
-          name?: string
-          user_id?: string
+          id?: string
+          is_owner?: boolean
+          last_name?: string
+          middle_name?: string
+          school?: string | null
+          subject?: number | null
         }
         Relationships: [
           {
@@ -280,89 +356,71 @@ export type Database = {
             referencedRelation: "group"
             referencedColumns: ["id"]
           },
-        ]
-      }
-      staff_joints: {
-        Row: {
-          created_at: string
-          group: Database["public"]["Enums"]["GROUPS"]
-          id: number
-          joint: number
-          staff: number
-        }
-        Insert: {
-          created_at?: string
-          group?: Database["public"]["Enums"]["GROUPS"]
-          id?: number
-          joint: number
-          staff: number
-        }
-        Update: {
-          created_at?: string
-          group?: Database["public"]["Enums"]["GROUPS"]
-          id?: number
-          joint?: number
-          staff?: number
-        }
-        Relationships: [
           {
-            foreignKeyName: "staff_joints_joint_fkey"
-            columns: ["joint"]
-            isOneToOne: false
-            referencedRelation: "joint"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "staff_joints_staff_fkey"
-            columns: ["staff"]
-            isOneToOne: false
-            referencedRelation: "staff"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      staff_school: {
-        Row: {
-          created_at: string
-          group: Database["public"]["Enums"]["GROUPS"] | null
-          id: number
-          school: string
-          staff: number
-          subject: number | null
-        }
-        Insert: {
-          created_at?: string
-          group?: Database["public"]["Enums"]["GROUPS"] | null
-          id?: number
-          school: string
-          staff: number
-          subject?: number | null
-        }
-        Update: {
-          created_at?: string
-          group?: Database["public"]["Enums"]["GROUPS"] | null
-          id?: number
-          school?: string
-          staff?: number
-          subject?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "staff_school_school_fkey"
+            foreignKeyName: "staff_school_fkey"
             columns: ["school"]
             isOneToOne: false
             referencedRelation: "school"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "staff_school_staff_fkey"
+            foreignKeyName: "staff_subject_fkey"
+            columns: ["subject"]
+            isOneToOne: false
+            referencedRelation: "subject"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_joint: {
+        Row: {
+          created_at: string
+          group: number | null
+          id: number
+          joint: number | null
+          staff: string | null
+          subject: number | null
+        }
+        Insert: {
+          created_at?: string
+          group?: number | null
+          id?: number
+          joint?: number | null
+          staff?: string | null
+          subject?: number | null
+        }
+        Update: {
+          created_at?: string
+          group?: number | null
+          id?: number
+          joint?: number | null
+          staff?: string | null
+          subject?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_joint_group_fkey"
+            columns: ["group"]
+            isOneToOne: false
+            referencedRelation: "group"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_joint_joint_fkey"
+            columns: ["joint"]
+            isOneToOne: false
+            referencedRelation: "joint"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_joint_staff_fkey"
             columns: ["staff"]
             isOneToOne: false
             referencedRelation: "staff"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "staff_school_subject_fkey"
+            foreignKeyName: "staff_joint_subject_fkey"
             columns: ["subject"]
             isOneToOne: false
             referencedRelation: "subject"
@@ -398,6 +456,42 @@ export type Database = {
             columns: ["class"]
             isOneToOne: false
             referencedRelation: "class"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_joint: {
+        Row: {
+          created_at: string
+          id: number
+          joint: number
+          student: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          joint: number
+          student: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          joint?: number
+          student?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_joint_joint_fkey"
+            columns: ["joint"]
+            isOneToOne: false
+            referencedRelation: "joint"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_joint_student_fkey"
+            columns: ["student"]
+            isOneToOne: false
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
@@ -537,28 +631,9 @@ export type Database = {
           created_at: string
         }[]
       }
-      insert_school_and_staff_school: {
-        Args: {
-          school_name: string
-          country: string
-          city: string
-          address: string
-          postal_code: string
-          region: string
-          phone_number: string
-          email: string
-        }
-        Returns: {
-          created_at: string
-          group: Database["public"]["Enums"]["GROUPS"] | null
-          id: number
-          school: string
-          staff: number
-          subject: number | null
-        }
-      }
     }
     Enums: {
+      GENDER: "MALE" | "FEMALE"
       GROUPS: "PRINCIPAL" | "ACADEMIC" | "TEACHER"
     }
     CompositeTypes: {
@@ -675,6 +750,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      GENDER: ["MALE", "FEMALE"],
       GROUPS: ["PRINCIPAL", "ACADEMIC", "TEACHER"],
     },
   },

@@ -1,179 +1,127 @@
 "use server";
 
-import { loginSchema } from "@/lib/validation";
 import { createClient } from "@/supabase/server";
-import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import type { Enums } from "@/supabase/supabase-types";
 import { redirect } from "next/navigation";
-import { z } from "zod";
-import { RegisterType } from "../register/page";
-import { cookies } from "next/headers";
-import { SCHOOL_ID_KEY } from "@/lib/school-utils";
 
-export async function login(formData: z.infer<typeof loginSchema>) {
-  const supabase = await createClient();
-
-  const { error } = await supabase.auth.signInWithPassword(formData);
-
-  if (error) {
-    redirect("/error");
-  }
-
-  // Check for saved school ID in cookies
-  const savedSchoolId = (await cookies()).get(SCHOOL_ID_KEY)?.value;
-
-  if (savedSchoolId) {
-    // If we have a saved school ID, redirect to that specific school page
-    revalidatePath("/", "layout");
-    redirect(`/school/${savedSchoolId}`);
-    return;
-  }
-
-  // If no saved school ID, fetch available schools
-  let schoolsData: any[] = [];
-  let shouldRedirectToSchool = false;
-  let redirectPath = "/school";
-
+export async function signup(
+  email: string,
+  password: string,
+  firstName: string,
+  lastName: string,
+  middleName: string,
+  gender: Enums<"GENDER">,
+) {
   try {
-    const { data, error: schoolsError } = await supabase.functions.invoke(
-      "retrieve-schools-or-staff",
+    const supabase = await createClient();
+    console.log("email:", email);
+    console.log("password:", password);
+    const { error: signUpError, data } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (signUpError || !data?.user) {
+      console.error("Signup error:", signUpError);
+      return { success: false, error: signUpError };
+    }
+
+    const createStaffResult = await createStaffForNewUser(
+      data.user.id,
+      firstName,
+      lastName,
+      middleName,
+      gender,
     );
 
-    if (schoolsError) {
-      console.error("Error fetching schools:", schoolsError);
-      shouldRedirectToSchool = true;
-    } else if (Array.isArray(data) && data.length > 0) {
-      schoolsData = data;
-      shouldRedirectToSchool = true;
-
-      if (data.length === 1) {
-        // If there's only one school, we'll redirect to it
-        redirectPath = `/school/${data[0].id}`;
-      } else {
-        // If there are multiple schools, find the most recent one by created_at
-        const sortedSchools = [...data].sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-        );
-
-        redirectPath = `/school/${sortedSchools[0].id}`;
-      }
+    if (createStaffResult?.success && createStaffResult.data) {
+      return { success: true, data: createStaffResult.data[0] }; // Return the first staff object
     }
-  } catch (err) {
-    console.error("Error handling school redirection:", err);
-    shouldRedirectToSchool = true;
+
+    console.error("Error creating staff object:", createStaffResult?.error);
+    return { success: false, error: createStaffResult?.error };
+  } catch (error) {
+    console.error("Unexpected error during signup:", error);
+    return { success: false, error };
   }
-
-  revalidatePath("/", "layout");
-
-  if (shouldRedirectToSchool) {
-    redirect(redirectPath);
-  }
-
-  redirect("/school");
 }
 
-export async function signup(formData: RegisterType) {
-  const supabase = await createClient();
+export async function createStaffForNewUser(
+  userId: string,
+  firstName: string,
+  lastName: string,
+  middleName: string,
+  gender: Enums<"GENDER">,
+) {
+  try {
+    const supabase = await createClient();
 
-  const {
-    cPassword,
-    email,
-    city,
-    country,
-    password,
-    phone,
-    postalCode,
-    principal,
-    principalPhone,
-    region,
-    schoolName,
-    principalEmail,
-    streetAddress: address,
-    gender,
-  } = formData;
+    const { error: insertError, data } = await supabase
+      .from("staff")
+      .insert({
+        id: userId,
+        first_name: firstName,
+        last_name: lastName,
+        middle_name: middleName,
+        gender,
+        group: 1,
+        is_owner: true,
+      })
+      .select();
 
-  const { error, data } = await supabase.auth.signUp({
-    email: principalEmail,
-    password,
-    options: {
-      data: {
-        name: principal,
-        phone: principalPhone,
-      },
-    },
-  });
+    if (insertError) {
+      console.error("Error creating staff object:", insertError);
+      return { success: false, error: insertError };
+    }
 
-  if (error || !data.user) {
-    redirect("/error");
+    return { success: true, data };
+  } catch (error) {
+    console.error("Unexpected error during staff creation:", error);
+    return { success: false, error };
   }
-
-  const { error: insertError, data: schoolData } = await supabase
-    .from("school")
-    .insert({
-      region,
-      city,
-      country,
-      email,
-      name: schoolName,
-      phone_number: phone,
-      postal_code: postalCode,
-      principal: data.user?.id,
-      address,
-    })
-    .select();
-
-  if (insertError || !schoolData) {
-    redirect("/error");
-  }
-
-  const image_url = `https://avatar.iran.liara.run/public/${
-    gender === "male" ? "boy" : gender === "female" ? "girl" : "boy"
-  }?username=${principal.replace(/\s/g, "").toLowerCase()}`;
-
-  const { error: staffError } = await supabase.from("staff").insert({
-    name: principal,
-    gender: gender || "male",
-    group: 1,
-    school: schoolData[0].id,
-    image_url,
-    user_id: data.user.id,
-  });
-
-  if (insertError || staffError) {
-    redirect("/error");
-  }
-
-  revalidatePath("/", "layout");
-  redirect("/");
 }
 
-export const getStaff = async () => {
-  const supabase = await createClient();
+export async function login(email: string, password: string) {
+  try {
+    const supabase = await createClient();
 
-  const getStaffUser = unstable_cache(
-    async () => {
-      const { data, error } = await supabase.functions.invoke("get-staff-user");
+    const { error: signInError, data: signInData } =
+      await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-      return { data, error };
-    },
-    ["staff-user"],
-    {
-      tags: ["staff-user"],
-      revalidate: 24 * 60 * 60,
-    },
-  );
+    if (signInError || !signInData?.user) {
+      console.error("Login error:", signInError);
+      return { success: false, error: signInError?.message || "Login failed" };
+    }
 
-  const { data, error } = await getStaffUser();
+    const { data: staffData, error: staffError } = await supabase
+      .from("staff")
+      .select("school")
+      .eq("id", signInData.user.id)
+      .single();
 
-  return { data, error };
-};
+    if (staffError || !staffData) {
+      console.error("Error fetching staff data:", staffError);
+      return {
+        success: false,
+        error: staffError?.message || "Failed to retrieve user profile",
+      };
+    }
 
-export const logout = async () => {
-  const supabase = await createClient();
+    if (!staffData.school) {
+      console.error("User has no school assigned:", staffData);
+      // Redirect to onboarding if no school is assigned
+      return redirect(`/onboarding/create-school?id=${signInData.user.id}`);
+    }
 
-  const { error } = await supabase.auth.signOut();
-
-  revalidateTag("staff-user");
-
-  return { error };
-};
+    // Redirect to the school page
+    return redirect(`/school/${staffData.school}`);
+  } catch (error) {
+    console.error("Unexpected error during login:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "An unexpected error occurred";
+    return { success: false, error: errorMessage };
+  }
+}

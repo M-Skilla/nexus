@@ -120,20 +120,17 @@ const NavBreadcrumb = () => {
                       .filter((s) => s.school.id !== schoolId)
                       .map((filteredSchool) => (
                         <DropdownMenuItem key={filteredSchool.school.id}>
-                          <BreadcrumbLink
-                            href={`/school/${filteredSchool.school.id}`}
-                            className="flex w-full items-center gap-2"
-                          >
-                            {filteredSchool.school.name}
+                          <BreadcrumbLink asChild>
+                            <Link
+                              href={`/school/${filteredSchool.school.id}`}
+                              className="flex w-full items-center gap-2"
+                            >
+                              {filteredSchool.school.name}
+                            </Link>
                           </BreadcrumbLink>
                         </DropdownMenuItem>
                       ))}
-                    <DropdownMenuItem>
-                      <div className="flex w-full items-center gap-2">
-                        <Plus className="size-4" />
-                        <span>Add School</span>
-                      </div>
-                    </DropdownMenuItem>
+
                     <DropdownMenuItem>
                       <Link
                         href="/school"

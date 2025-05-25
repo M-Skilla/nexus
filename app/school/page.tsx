@@ -16,7 +16,6 @@ import { toast } from "sonner";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { unstable_cache } from "next/cache";
-import ExampleForm from "@/components/ui/form-builder/example-form";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import SchoolForm from "@/components/forms/school-form";
@@ -47,7 +46,7 @@ const Page = async () => {
     ["schools-for-staff"],
     {
       tags: ["schools-for-staff"],
-      revalidate: 24 * 60 * 60,
+      revalidate: 60,
     },
   );
 
@@ -93,7 +92,7 @@ const Page = async () => {
     <>
       <div className="mt-[90px] flex justify-between">
         <span className="text-2xl font-semibold">Your Schools</span>
-        <Sheet>
+        {/* <Sheet>
           <SheetTrigger className="bg-primary/70 flex cursor-pointer items-center gap-2 rounded-[10px] px-4 py-2 text-sm">
             <Plus className="h-4 w-4" /> <span>Add School</span>
           </SheetTrigger>
@@ -110,13 +109,13 @@ const Page = async () => {
               </div>
             </ScrollArea>
           </SheetContent>
-        </Sheet>
+        </Sheet> */}
       </div>
 
       {isLoading ? (
         <SchoolSkeletons />
       ) : schools && schools.length > 0 ? (
-        <div className="mt-6 grid grid-cols-1 gap-5 px-1 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 px-1 md:grid-cols-2 lg:grid-cols-3">
           {schools.map((school) => (
             <Link href={`/school/${school.school.id}`} key={school.school.id}>
               <SchoolCard school={school.school} />
