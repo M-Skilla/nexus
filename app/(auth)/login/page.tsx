@@ -21,7 +21,7 @@ export default async function LoginPage() {
     if (!staffData?.school) {
       redirect("/onboarding/create-school");
     } else {
-      redirect(`/school/${staffData.school}`); // Use renamed variable
+      redirect(`/${staffData.school}`); // Use renamed variable
     }
   }
 

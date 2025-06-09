@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -28,6 +28,8 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { createClient } from "@/supabase/client";
 import { CountrySelector } from "../country-selector";
+import { toast } from "sonner";
+import { getStaff } from "@/lib/get-staff";
 
 // Define the form schema with validation
 const schoolFormSchema = z.object({
@@ -76,15 +78,40 @@ export default function CreateSchoolForm() {
   const onSubmit = async (data: SchoolFormValues) => {
     setIsSubmitting(true);
 
+    const { staff, error } = await getStaff();
+
+    if (error || !staff) {
+      console.error("Error fetching staff data:", error);
+      toast.error("Failed to fetch staff data. Please try again.");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       // Create Supabase client
       const supabase = createClient();
+      const {
+        address,
+        city,
+        country,
+        email,
+        name,
+        phone_number,
+        postal_code,
+        region,
+      } = data;
 
-      // Insert school data
-      const { data: school, error } = await supabase
-        .from("school")
-        .insert([data])
-        .select();
+      const { error } = await supabase.rpc("create_school_and_assign_staff", {
+        p_address: address,
+        p_city: city,
+        p_country: country,
+        p_email: email,
+        p_name: name,
+        p_phone_number: phone_number,
+        p_postal_code: postal_code,
+        p_region: region,
+        p_staff_id: staff.id,
+      });
 
       if (error) {
         throw error;
@@ -92,8 +119,9 @@ export default function CreateSchoolForm() {
 
       // Navigate to the next step in onboarding
       router.push("/onboarding/success");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating school:", error);
+      toast.error(error);
       // Handle error (you could set an error state and display it)
     } finally {
       setIsSubmitting(false);

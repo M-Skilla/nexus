@@ -2,48 +2,86 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
+import { toast } from "sonner";
+
+const emailSchema = z.object({
+  email: z.string().email({ message: "Invalid Email" }),
+});
 
 const InviteMembers = () => {
-  const [emails, setEmails] = useState([""]);
+  const form = useForm<z.infer<typeof emailSchema>>({
+    resolver: zodResolver(emailSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
 
-  const addEmailField = () => {
-    setEmails([...emails, ""]);
-  };
-
-  const handleEmailChange = (index: number, value: string) => {
-    const updatedEmails = [...emails];
-    updatedEmails[index] = value;
-    setEmails(updatedEmails);
-  };
-
-  const handleInvite = () => {
-    console.log("Inviting members:", emails);
-    // Add logic to send invitations
+  const handleInvite = (values: z.infer<typeof emailSchema>) => {
+    const loadingId = toast.loading("Sending Invite...");
+    console.log("Inviting members:", values.email);
+    toast.dismiss(loadingId);
   };
 
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button>Invite Members</Button>
-      </SheetTrigger>
-      <SheetContent>
-        <h2 className="mb-4 text-xl font-bold">Invite Members</h2>
-        {emails.map((email, index) => (
-          <Input
-            key={index}
-            value={email}
-            onChange={(e) => handleEmailChange(index, e.target.value)}
-            placeholder="Enter email"
-            className="mb-2"
-          />
-        ))}
-        <Button onClick={addEmailField} className="mb-4">
-          Add Email
-        </Button>
-        <Button onClick={handleInvite}>Send Invitations</Button>
-      </SheetContent>
-    </Sheet>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button className="bg-primary/70">Invite Members</Button>
+      </DialogTrigger>
+      <DialogContent className="w-[600px] px-4">
+        <DialogHeader>
+          <DialogTitle className="mb-5 text-xl">Invite Users</DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleInvite)}>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Email" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Add email of the member you want to invite.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter>
+              <Button
+                disabled={form.formState.isSubmitting || form.formState.isDirty}
+                type="submit"
+              >
+                Invite
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

@@ -60,7 +60,7 @@ import { Skeleton } from "./ui/skeleton";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AuthError } from "@supabase/supabase-js";
-import { getStaff } from "@/app/(auth)/login/action";
+// import { getStaff } from "@/app/(auth)/login/action";
 
 const data = {
   navSecondary: [
@@ -127,20 +127,31 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   useEffect(() => {
     async function fetchUser() {
-      const { data, error } = await getStaff();
+      const { data, error } = await supabase.auth.getUser();
 
-      if (error) {
+      if (error || !data) {
         console.error("Error fetching user data:", error);
         return;
       }
-      if (data) {
-        setUser({
-          name: data.resData?.name,
-          email: data.resData?.email!,
-          avatar:
-            data.resData?.avatar || "https://avatar.iran.liara.run/public",
-        });
+
+      const { data: staffUser, error: staffError } = await supabase
+        .from("staff")
+        .select()
+        .eq("id", data.user.id)
+        .single();
+
+      if (staffError || !staffUser) {
+        console.error("Error fetching staff data:", staffError);
+        return;
       }
+
+      setUser({
+        name: `${staffUser.first_name} ${staffUser.last_name}`,
+        email: data.user.email || "",
+        avatar:
+          `https://avatar.iran.liara.run/public/${staffUser.gender === "MALE" ? "boy" : "girl"}?username=${staffUser.first_name}${staffUser.last_name}` ||
+          "",
+      });
     }
 
     fetchUser();

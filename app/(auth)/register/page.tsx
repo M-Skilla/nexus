@@ -44,7 +44,7 @@ export default function RegisterPage() {
     first_name: "",
     middle_name: "",
     last_name: "",
-    gender: "" as (typeof Constants.public.Enums.GENDER)[number],
+    gender: "" as (typeof Constants.public.Enums.gender)[number],
   });
 
   const handleChange = (
@@ -113,8 +113,8 @@ export default function RegisterPage() {
         formData.email,
         formData.password,
         formData.first_name,
-        formData.middle_name,
         formData.last_name,
+        formData.middle_name,
         formData.gender,
       );
 
@@ -124,9 +124,9 @@ export default function RegisterPage() {
       }
 
       if (data.is_owner) {
-        router.push(`/school/${data.school}`);
+        router.push(`/${data.school}`);
       } else {
-        router.push(`/onboarding/create-school?id=${data.id}`);
+        router.push(`/onboarding/create-school`);
       }
     } catch (error) {
       toast.error(`Registration failed ${error}`);
@@ -304,7 +304,7 @@ export default function RegisterPage() {
                   setFormData((prev) => ({
                     ...prev,
                     gender:
-                      value as (typeof Constants.public.Enums.GENDER)[number],
+                      value as (typeof Constants.public.Enums.gender)[number],
                   }))
                 }
               >
@@ -315,7 +315,7 @@ export default function RegisterPage() {
                   <SelectValue placeholder="Select Gender" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Constants.public.Enums.GENDER.map((gender) => (
+                  {Constants.public.Enums.gender.map((gender) => (
                     <SelectItem key={gender} value={gender}>
                       {gender.charAt(0).toUpperCase() +
                         gender.slice(1).toLowerCase()}

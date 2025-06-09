@@ -10,8 +10,9 @@ export async function signup(
   firstName: string,
   lastName: string,
   middleName: string,
-  gender: Enums<"GENDER">,
+  gender: Enums<"gender">,
 ) {
+  let redirectPath: string | null = null;
   try {
     const supabase = await createClient();
     console.log("email:", email);
@@ -35,6 +36,7 @@ export async function signup(
     );
 
     if (createStaffResult?.success && createStaffResult.data) {
+      redirectPath = "/auth/verify-email";
       return { success: true, data: createStaffResult.data[0] }; // Return the first staff object
     }
 
@@ -43,6 +45,10 @@ export async function signup(
   } catch (error) {
     console.error("Unexpected error during signup:", error);
     return { success: false, error };
+  } finally {
+    if (redirectPath) {
+      return redirect(redirectPath);
+    }
   }
 }
 
@@ -51,7 +57,7 @@ export async function createStaffForNewUser(
   firstName: string,
   lastName: string,
   middleName: string,
-  gender: Enums<"GENDER">,
+  gender: Enums<"gender">,
 ) {
   try {
     const supabase = await createClient();
@@ -82,6 +88,7 @@ export async function createStaffForNewUser(
 }
 
 export async function login(email: string, password: string) {
+  let redirectPath: string | null = null;
   try {
     const supabase = await createClient();
 
@@ -110,18 +117,29 @@ export async function login(email: string, password: string) {
       };
     }
 
-    if (!staffData.school) {
-      console.error("User has no school assigned:", staffData);
-      // Redirect to onboarding if no school is assigned
-      return redirect(`/onboarding/create-school?id=${signInData.user.id}`);
-    }
-
-    // Redirect to the school page
-    return redirect(`/school/${staffData.school}`);
+    return { success: true, data: staffData.school };
   } catch (error) {
     console.error("Unexpected error during login:", error);
     const errorMessage =
       error instanceof Error ? error.message : "An unexpected error occurred";
     return { success: false, error: errorMessage };
+  }
+}
+
+export async function logout() {
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error("Logout error:", error);
+      return { success: false, error: error.message };
+    }
+
+    // Redirect to the login page after successful logout
+    return { success: true, error: null };
+  } catch (error) {
+    console.error("Unexpected error during logout:", error);
+    return { success: false, error: "An unexpected error occurred" };
   }
 }

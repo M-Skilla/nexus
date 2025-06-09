@@ -315,7 +315,7 @@ export type Database = {
         Row: {
           created_at: string
           first_name: string
-          gender: Database["public"]["Enums"]["GENDER"]
+          gender: Database["public"]["Enums"]["gender"]
           group: number | null
           id: string
           is_owner: boolean
@@ -327,7 +327,7 @@ export type Database = {
         Insert: {
           created_at?: string
           first_name: string
-          gender?: Database["public"]["Enums"]["GENDER"]
+          gender?: Database["public"]["Enums"]["gender"]
           group?: number | null
           id?: string
           is_owner?: boolean
@@ -339,7 +339,7 @@ export type Database = {
         Update: {
           created_at?: string
           first_name?: string
-          gender?: Database["public"]["Enums"]["GENDER"]
+          gender?: Database["public"]["Enums"]["gender"]
           group?: number | null
           id?: string
           is_owner?: boolean
@@ -581,60 +581,46 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_by_user_and_school: {
-        Args: { school_id: string }
-        Returns: {
-          id: number
-          created_at: string
-          name: string
-          description: string
-          start_date: string
-          end_date: string
-        }[]
+      create_joint_examination: {
+        Args: {
+          p_name: string
+          p_description: string
+          p_start_date: string
+          p_end_date: string
+          p_school_id: string
+          p_staff_id: string
+        }
+        Returns: number
       }
-      get_current_staff_user: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          id: number
-          created_at: string
-          name: string
-          gender: string
-          group: number
-          image_url: string
-          user_id: string
-        }[]
+      create_school_and_assign_staff: {
+        Args: {
+          p_name: string
+          p_country: string
+          p_city: string
+          p_address: string
+          p_postal_code: string
+          p_region: string
+          p_phone_number: string
+          p_email: string
+          p_staff_id: string
+        }
+        Returns: undefined
       }
-      get_joint_fields_by_user: {
-        Args: { school_id: string }
+      get_staff_joint_examinations: {
+        Args: { p_staff_id: string }
         Returns: {
-          id: number
-          created_at: string
-          name: string
-          description: string
-          start_date: string
-          end_date: string
-        }[]
-      }
-      get_staff_schools: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          school_id: string
-          name: string
-          country: string
-          city: string
-          address: string
-          principal: string
-          postal_code: string
-          region: string
-          phone_number: string
-          email: string
-          created_at: string
+          joint_id: number
+          joint_name: string
+          joint_description: string
+          joint_start_date: string
+          joint_end_date: string
+          assigned_at: string
+          group_name: string
         }[]
       }
     }
     Enums: {
-      GENDER: "MALE" | "FEMALE"
-      GROUPS: "PRINCIPAL" | "ACADEMIC" | "TEACHER"
+      gender: "MALE" | "FEMALE" | "OTHER"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -750,8 +736,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      GENDER: ["MALE", "FEMALE"],
-      GROUPS: ["PRINCIPAL", "ACADEMIC", "TEACHER"],
+      gender: ["MALE", "FEMALE", "OTHER"],
     },
   },
 } as const

@@ -99,7 +99,7 @@ export function NavUser({
               onClick={async () => {
                 toast.promise(logout, {
                   loading: "Logging out...",
-                  success: (data: { error: AuthError | null }) => {
+                  success: (data: { error: string | null }) => {
                     if (data.error) {
                       return "Failed to log out";
                     }

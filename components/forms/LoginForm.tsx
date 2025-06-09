@@ -37,8 +37,17 @@ const LoginForm = () => {
 
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     try {
-      await login(data.email, data.password);
+      const {
+        success,
+        data: loginData,
+        error,
+      } = await login(data.email, data.password);
+
+      if (!success || !loginData || error) {
+        throw new Error(error || "Login failed. Please try again.");
+      }
       toast.success("Login successful! Redirecting...");
+      router.replace(`/${loginData}`);
     } catch (error: any) {
       toast.error(error.message || "An error occurred during login.");
     }

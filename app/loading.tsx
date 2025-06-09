@@ -2,7 +2,7 @@ import Image from "next/image";
 
 const Loading = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+    <div className="from-background to-secondary/10 dark:from-background dark:to-secondary/20 flex min-h-screen items-center justify-center bg-gradient-to-br">
       <div className="flex flex-col items-center">
         <div className="animate-pulse">
           <Image
