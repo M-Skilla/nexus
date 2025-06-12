@@ -111,31 +111,38 @@ export type Database = {
       invitation: {
         Row: {
           created_at: string
-          from: number | null
+          from: string
           id: number
-          joint: number
-          to: number | null
+          school: string
+          to: string
         }
         Insert: {
           created_at?: string
-          from?: number | null
+          from: string
           id?: number
-          joint: number
-          to?: number | null
+          school: string
+          to: string
         }
         Update: {
           created_at?: string
-          from?: number | null
+          from?: string
           id?: number
-          joint?: number
-          to?: number | null
+          school?: string
+          to?: string
         }
         Relationships: [
           {
-            foreignKeyName: "invitation_joint_fkey"
-            columns: ["joint"]
+            foreignKeyName: "invitation_from_fkey"
+            columns: ["from"]
             isOneToOne: false
-            referencedRelation: "joint"
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitation_school_fkey"
+            columns: ["school"]
+            isOneToOne: false
+            referencedRelation: "school"
             referencedColumns: ["id"]
           },
         ]

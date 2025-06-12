@@ -26,9 +26,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { toast } from "sonner";
-import { AuthError } from "@supabase/supabase-js";
 import { logout } from "@/app/(auth)/login/action";
 
 export function NavUser({

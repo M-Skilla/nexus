@@ -7,7 +7,7 @@ const fetchStaffDataInternal = unstable_cache(
   async (userId: string, supabase: any) => {
     const { data: staffRecord, error: staffError } = await supabase
       .from("staff")
-      .select("*")
+      .select("*, group(*), subject(*)")
       .eq("id", userId)
       .single();
 
@@ -33,7 +33,7 @@ const fetchStaffDataInternal = unstable_cache(
       error: null,
     };
   },
-  ["staff-data"], // Cache key prefix; userId argument will be part of the full key
+  [""], // Cache key prefix; userId argument will be part of the full key
   {
     revalidate: 120, // Revalidate every 120 seconds
     tags: ["staff-cache"], // Optional tag for this cache

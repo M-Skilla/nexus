@@ -24,12 +24,15 @@ import {
   FormMessage,
 } from "../ui/form";
 import { toast } from "sonner";
+import { adminAuthClient } from "@/supabase/admin";
+import { useParams } from "next/navigation";
 
 const emailSchema = z.object({
   email: z.string().email({ message: "Invalid Email" }),
 });
 
 const InviteMembers = () => {
+  const { id } = useParams();
   const form = useForm<z.infer<typeof emailSchema>>({
     resolver: zodResolver(emailSchema),
     defaultValues: {
@@ -37,9 +40,26 @@ const InviteMembers = () => {
     },
   });
 
-  const handleInvite = (values: z.infer<typeof emailSchema>) => {
+  const handleInvite = async (values: z.infer<typeof emailSchema>) => {
     const loadingId = toast.loading("Sending Invite...");
-    console.log("Inviting members:", values.email);
+    if (!id) {
+      toast.error("Refresh page. Something went wrong.");
+    }
+    const {
+      data: { user },
+      error,
+    } = await adminAuthClient.inviteUserByEmail(values.email, {
+      data: {
+        schoolId: id as string,
+      },
+      redirectTo: `http://localhost:3000/auth/callback`,
+    });
+    if (error || !user) {
+      toast.error(
+        `Failed to invite user: ${error?.message || "Unknown error"}`,
+      );
+    }
+    toast.success("User invited successfully!");
     toast.dismiss(loadingId);
   };
 
@@ -71,10 +91,7 @@ const InviteMembers = () => {
               )}
             />
             <DialogFooter>
-              <Button
-                disabled={form.formState.isSubmitting || form.formState.isDirty}
-                type="submit"
-              >
+              <Button disabled={form.formState.isSubmitting} type="submit">
                 Invite
               </Button>
             </DialogFooter>

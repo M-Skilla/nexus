@@ -2,6 +2,7 @@
 
 import { createClient } from "@/supabase/server";
 import type { Enums } from "@/supabase/supabase-types";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function signup(
@@ -37,6 +38,7 @@ export async function signup(
 
     if (createStaffResult?.success && createStaffResult.data) {
       redirectPath = "/auth/verify-email";
+      revalidatePath("/", "layout");
       return { success: true, data: createStaffResult.data[0] }; // Return the first staff object
     }
 
@@ -116,7 +118,7 @@ export async function login(email: string, password: string) {
         error: staffError?.message || "Failed to retrieve user profile",
       };
     }
-
+    revalidatePath("/", "layout");
     return { success: true, data: staffData.school };
   } catch (error) {
     console.error("Unexpected error during login:", error);

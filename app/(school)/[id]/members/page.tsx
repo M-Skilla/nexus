@@ -12,6 +12,9 @@ import { createClient } from "@/supabase/server";
 import Image from "next/image";
 import { avatar } from "@/lib/avatar";
 import { unstable_cache } from "next/cache";
+import { DataTable } from "./data-table";
+import { columns } from "./columns";
+import { adminAuthClient } from "@/supabase/admin";
 
 const MembersPage = async ({ params }: { params: { id: string } }) => {
   const supabase = await createClient();
@@ -20,7 +23,7 @@ const MembersPage = async ({ params }: { params: { id: string } }) => {
     async () => {
       const { data, error } = await supabase
         .from("staff")
-        .select("*, group(*)")
+        .select("*, group(*), subject(*)")
         .eq("school", schoolId);
 
       return { data, error };
@@ -28,7 +31,7 @@ const MembersPage = async ({ params }: { params: { id: string } }) => {
     [],
     {
       tags: ["staff-members"],
-      revalidate: 120,
+      revalidate: 60,
     },
   );
 
@@ -50,7 +53,8 @@ const MembersPage = async ({ params }: { params: { id: string } }) => {
           <h1 className="text-2xl font-bold">School Members</h1>
           <InviteMembers />
         </div>
-        <Table className="table-auto border-collapse">
+        {data && <DataTable columns={columns} data={data as any} />}
+        {/* <Table className="table-auto border-collapse">
           <TableHeader>
             <TableRow>
               <TableHead className="px-4 py-2">Image</TableHead>
@@ -92,7 +96,7 @@ const MembersPage = async ({ params }: { params: { id: string } }) => {
               </TableRow>
             ))}
           </TableBody>
-        </Table>
+        </Table> */}
       </div>
     </div>
   );

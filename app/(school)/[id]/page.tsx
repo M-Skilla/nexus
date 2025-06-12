@@ -25,7 +25,7 @@ const Page = async () => {
     [],
     {
       tags: ["staff_joints"],
-      revalidate: 120,
+      revalidate: 60,
     },
   );
 

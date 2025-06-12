@@ -18,7 +18,7 @@ import { Button } from "../ui/button";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { login } from "@/app/(auth)/login/action";
 
 const LoginForm = () => {
