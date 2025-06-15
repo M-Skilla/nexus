@@ -16,11 +16,22 @@ const Page = async () => {
       if (!user.user || error) {
         redirect("/login");
       }
+
+      const { data: group, error: groupError } = await supabase
+        .from("staff")
+        .select("group(*)")
+        .eq("id", user.user.id)
+        .single();
+
+      if (groupError || !group) {
+        console.error("Error fetching staff group", error);
+        redirect("/login");
+      }
       const { data: examinations, error: examError } = await supabase.rpc(
         "get_staff_joint_examinations",
         { p_staff_id: user.user.id },
       );
-      return { examinations, examError };
+      return { examinations, examError, group };
     },
     [],
     {
@@ -29,7 +40,7 @@ const Page = async () => {
     },
   );
 
-  const { examinations, examError } = await getJoints();
+  const { examinations, group, examError } = await getJoints();
 
   if (examError) {
     console.error("Error fetching examinations", examError);
@@ -39,7 +50,7 @@ const Page = async () => {
     <>
       <div className="mt-[90px] flex justify-between">
         <span className="text-2xl">Examinations</span>
-        <JointForm />
+        {group && group.group?.name !== "TEACHER" && <JointForm />}
       </div>
       <div className="grid grid-cols-1 gap-5 px-1 lg:grid-cols-3">
         {examinations &&

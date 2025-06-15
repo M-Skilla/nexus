@@ -22,6 +22,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { useEffect, useState } from "react";
 import { logout } from "@/app/(auth)/login/action";
 import { getStaff } from "@/lib/get-staff";
+import UserAvatar from "./avatar";
 
 type userProps = {
   email: string | undefined;
@@ -63,9 +64,7 @@ const NavUser2 = () => {
         {user ? (
           <div className="hover:bg-muted flex items-center gap-5 rounded-[10px] p-1">
             <a href="#" className="flex items-center gap-2">
-              <div className="flex aspect-square size-10 items-center justify-center rounded-lg">
-                <Image src={user.avatar} alt="Logo" width={32} height={32} />
-              </div>
+              <UserAvatar name={`${user.first_name} ${user.last_name}`} />
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">
                   {user.first_name} {user.last_name}

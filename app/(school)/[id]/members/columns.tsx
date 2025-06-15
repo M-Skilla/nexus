@@ -1,4 +1,5 @@
 "use client";
+import UserAvatar from "@/components/avatar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -7,7 +8,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -17,21 +17,23 @@ import {
 } from "@/components/ui/select";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { avatar } from "@/lib/avatar";
+
 import { getStaff } from "@/lib/get-staff";
 import { createClient } from "@/supabase/client";
 import { Tables } from "@/supabase/supabase-types";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Menu, Trash } from "lucide-react";
-import Image from "next/image";
+import { ArrowUpDown, Menu, Save, Trash, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { revalidateAction } from "../actions";
 
 export type Member = {
   created_at: string;
@@ -86,16 +88,8 @@ export const columns: ColumnDef<Member>[] = [
     accessorKey: "image",
     header: "Image",
     cell: ({ row }) => (
-      <Image
-        src={avatar({
-          gender: row.original.gender,
-          first_name: row.original.first_name,
-          last_name: row.original.last_name,
-        })}
-        alt={`${row.original.first_name} ${row.original.last_name}`}
-        width={32}
-        height={32}
-        className="rounded-full"
+      <UserAvatar
+        name={`${row.original.first_name} ${row.original.last_name}`}
       />
     ),
   },
@@ -124,7 +118,6 @@ export const columns: ColumnDef<Member>[] = [
   },
   {
     accessorKey: "gender",
-
     header: ({ column }) => {
       return (
         <Button
@@ -179,42 +172,66 @@ export const columns: ColumnDef<Member>[] = [
     cell: ({ row }) => {
       const [isOwn, setIsOwn] = useState(false);
       const [groups, setGroups] = useState<Tables<"group">[] | null>(null);
+      const [loading, setLoading] = useState(true);
+      const [group, setGroup] = useState<number>(row.original.group.id);
       useEffect(() => {
-        const getUser = async () => {
+        const fetchData = async () => {
+          setLoading(true);
           const supabase = await createClient();
           const {
             data: { user },
             error,
           } = await supabase.auth.getUser();
+
           if (error || !user) {
             toast.error("Something went wrong! Reload the page.");
           }
           const { staff } = await getStaff();
 
-          setIsOwn(
-            row.original.id === user?.id || staff.group.name !== "PRINCIPAL"
-              ? true
-              : false,
-          );
-        };
+          if (!staff) {
+            toast.error(
+              "Failed to retrieve staff information. Please reload the page.",
+            );
+            setLoading(false);
+            return;
+          }
 
-        const getGroups = async () => {
-          const supabase = await createClient();
-          const { data, error } = await supabase.from("group").select("*");
-          if (error || !data) {
+          const group = staff.group;
+
+          if (!group) {
+            toast.error(
+              "You are not a member of any group or critical group information is missing.",
+            );
+            setLoading(false);
+            return;
+          }
+
+          setIsOwn(row.original.id === user?.id || group.name !== "PRINCIPAL");
+
+          const { data, error: groupErr } = await supabase
+            .from("group")
+            .select("*");
+
+          if (groupErr || !data) {
             toast.error("Something went wrong! Reload the page.");
           }
-          console.log(data);
           setGroups(data);
+          setLoading(false);
         };
 
-        getUser();
-        getGroups();
-      }, []);
+        fetchData();
+      }, [row.original.id]);
 
       return (
         <div className="flex space-x-4 text-xs font-thin">
-          {!isOwn && (
+          {loading ? (
+            <>
+              <div className="bg-muted h-10 w-32 animate-pulse rounded-md" />{" "}
+              {/* Skeleton for "Manage Access" Button */}
+              <div className="bg-muted h-10 w-10 animate-pulse rounded-md" />{" "}
+              {/* Skeleton for Menu Trigger */}
+            </>
+          ) : !isOwn ? (
             <>
               <Sheet>
                 <SheetTrigger asChild>
@@ -236,10 +253,13 @@ export const columns: ColumnDef<Member>[] = [
                     {groups && (
                       <div className="flex justify-between">
                         <span>All Exams</span>
-                        <Select value={String(row.original.group.id)}>
+                        <Select
+                          value={String(group)}
+                          onValueChange={(value) => setGroup(Number(value))}
+                        >
                           <SelectTrigger>
                             <SelectValue
-                              defaultValue={row.original.group.id}
+                              defaultValue={group}
                               placeholder="Roles"
                             />
                           </SelectTrigger>
@@ -254,11 +274,36 @@ export const columns: ColumnDef<Member>[] = [
                       </div>
                     )}
                   </div>
+                  <SheetFooter className="flex justify-between">
+                    <SheetClose />
+                    <Button
+                      className="flex gap-2"
+                      onClick={async () => {
+                        const toastId = toast.loading("Saving Changes...");
+                        const supabase = createClient();
+                        const { data, error } = await supabase
+                          .from("staff")
+                          .update({ group })
+                          .eq("id", row.original.id)
+                          .select();
+                        if (error || !data) {
+                          console.error(error);
+                          toast.error("Failed to update!");
+                        }
+                        await revalidateAction("staff-members");
+                        toast.success("Changes saved successfully");
+                        toast.dismiss(toastId);
+                      }}
+                    >
+                      <Save />
+                      <span>Save</span>
+                    </Button>
+                  </SheetFooter>
                 </SheetContent>
               </Sheet>
               <DropdownMenu>
                 <DropdownMenuTrigger>
-                  <Menu />
+                  <Trash2 className="text-destructive/80 h-5 w-5" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuItem className="flex space-x-1">
@@ -268,7 +313,7 @@ export const columns: ColumnDef<Member>[] = [
                 </DropdownMenuContent>
               </DropdownMenu>
             </>
-          )}
+          ) : null}
         </div>
       );
     },

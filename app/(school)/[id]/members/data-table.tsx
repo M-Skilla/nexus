@@ -72,7 +72,12 @@ export function DataTable<TData, TValue>({
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     onColumnVisibilityChange: setColumnVisibility,
+    
   });
+
+  React.useEffect(() => {
+    table.setPageSize(5);
+  }, [table]);
 
   return (
     <div className="space-y-2">
@@ -116,7 +121,7 @@ export function DataTable<TData, TValue>({
       <ScrollArea className="h-[55vh] w-full rounded-md border">
         <Table className="">
           {/* Removed h-[55vh] and debug border */}
-          <TableHeader>
+          <TableHeader className="bg-background sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {

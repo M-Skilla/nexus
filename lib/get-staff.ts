@@ -1,10 +1,12 @@
 "use server";
 import { createClient } from "@/supabase/server";
+import { Database } from "@/supabase/supabase-types";
+import { SupabaseClient } from "@supabase/supabase-js";
 import { unstable_cache } from "next/cache";
 
 // Cached function to fetch and process staff data (including avatar)
 const fetchStaffDataInternal = unstable_cache(
-  async (userId: string, supabase: any) => {
+  async (userId: string, supabase: SupabaseClient<Database>) => {
     const { data: staffRecord, error: staffError } = await supabase
       .from("staff")
       .select("*, group(*), subject(*)")

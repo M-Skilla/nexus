@@ -28,7 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { revalidateAction } from "@/app/(school)/[id]/actions";
+import { revalidateAction, revalidateAll } from "@/app/(school)/[id]/actions";
 
 const detailSchema = z
   .object({
@@ -135,8 +135,8 @@ export default function SetPasswordPage() {
           return;
         }
         toast.success("Password set successfully! Redirecting to dashboard...");
-        revalidateAction("staff-members");
-        revalidateAction("staff-cache");
+        revalidateAll();
+
         router.replace(`/${user?.user_metadata.schoolId}`);
       }
     } catch (err: any) {

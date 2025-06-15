@@ -36,7 +36,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <NextTopLoader color="#ff0000" />
+          <NextTopLoader color="#ff0000" showSpinner={false} />
           {children}
           <Toaster
             richColors

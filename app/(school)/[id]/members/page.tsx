@@ -1,20 +1,10 @@
 import React from "react";
 import InviteMembers from "@/components/members/invite-members";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { createClient } from "@/supabase/server";
-import Image from "next/image";
-import { avatar } from "@/lib/avatar";
 import { unstable_cache } from "next/cache";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
-import { adminAuthClient } from "@/supabase/admin";
+import { getStaff as getUser } from "@/lib/get-staff";
 
 const MembersPage = async ({ params }: { params: { id: string } }) => {
   const supabase = await createClient();
@@ -37,7 +27,9 @@ const MembersPage = async ({ params }: { params: { id: string } }) => {
 
   const { data, error } = await getStaff();
 
-  if (error) {
+  const { staff, error: staffError } = await getUser();
+
+  if (error || staffError || !staff) {
     console.error("Error fetching staff members:", error);
     return (
       <div className="mt-[90px] space-y-6">
@@ -51,52 +43,9 @@ const MembersPage = async ({ params }: { params: { id: string } }) => {
       <div className="w-full max-w-6xl">
         <div className="mb-5 flex items-center justify-between">
           <h1 className="text-2xl font-bold">School Members</h1>
-          <InviteMembers />
+          {staff.group && staff.group.name !== "TEACHER" && <InviteMembers />}
         </div>
         {data && <DataTable columns={columns} data={data as any} />}
-        {/* <Table className="table-auto border-collapse">
-          <TableHeader>
-            <TableRow>
-              <TableHead className="px-4 py-2">Image</TableHead>
-              <TableHead className="px-4 py-2">Name</TableHead>
-              <TableHead className="px-4 py-2">Gender</TableHead>
-              <TableHead className="px-4 py-2">Role</TableHead>
-              <TableHead className="px-4 py-2">Subject</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data?.map((member, index: number) => (
-              <TableRow key={index}>
-                <TableCell className="px-4 py-2">
-                  <Image
-                    src={avatar({
-                      gender: member.gender,
-                      first_name: member.first_name,
-                      last_name: member.last_name,
-                    })}
-                    alt={member.first_name}
-                    width={50}
-                    height={50}
-                    className="rounded-full"
-                  />
-                </TableCell>
-                <TableCell className="px-4 py-2">
-                  {member.first_name} {member.middle_name} {member.last_name}
-                </TableCell>
-                <TableCell className="px-4 py-2">
-                  {member.gender.charAt(0).toUpperCase() +
-                    member.gender.slice(1)}
-                </TableCell>
-                <TableCell className="px-4 py-2">
-                  {member.group?.name}
-                </TableCell>
-                <TableCell className="px-4 py-2">
-                  {member.subject || "N/A"}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table> */}
       </div>
     </div>
   );

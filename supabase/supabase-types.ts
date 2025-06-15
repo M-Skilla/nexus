@@ -149,6 +149,7 @@ export type Database = {
       }
       joint: {
         Row: {
+          class: string | null
           created_at: string
           description: string | null
           end_date: string
@@ -157,6 +158,7 @@ export type Database = {
           start_date: string
         }
         Insert: {
+          class?: string | null
           created_at?: string
           description?: string | null
           end_date: string
@@ -165,6 +167,7 @@ export type Database = {
           start_date: string
         }
         Update: {
+          class?: string | null
           created_at?: string
           description?: string | null
           end_date?: string
@@ -503,68 +506,90 @@ export type Database = {
           },
         ]
       }
+      student_subjects: {
+        Row: {
+          created_at: string
+          id: number
+          student: string
+          subject: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          student: string
+          subject: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          student?: string
+          subject?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_subjects_student_fkey"
+            columns: ["student"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_subjects_subject_fkey"
+            columns: ["subject"]
+            isOneToOne: false
+            referencedRelation: "subject"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       students: {
         Row: {
           created_at: string
           first_name: string
           gender: string
           id: string
-          image_url: string
           last_name: string
           middle_name: string
-          stream: number
         }
         Insert: {
           created_at?: string
           first_name: string
           gender: string
           id?: string
-          image_url: string
           last_name: string
           middle_name: string
-          stream: number
         }
         Update: {
           created_at?: string
           first_name?: string
           gender?: string
           id?: string
-          image_url?: string
           last_name?: string
           middle_name?: string
-          stream?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "students_stream_fkey"
-            columns: ["stream"]
-            isOneToOne: false
-            referencedRelation: "stream"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       subject: {
         Row: {
+          code: string
           created_at: string
           id: number
           joint: number | null
           name: string
-          school: string | null
         }
         Insert: {
+          code: string
           created_at?: string
           id?: number
           joint?: number | null
           name: string
-          school?: string | null
         }
         Update: {
+          code?: string
           created_at?: string
           id?: number
           joint?: number | null
           name?: string
-          school?: string | null
         }
         Relationships: [
           {
@@ -572,13 +597,6 @@ export type Database = {
             columns: ["joint"]
             isOneToOne: false
             referencedRelation: "joint"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "subject_school_fkey"
-            columns: ["school"]
-            isOneToOne: false
-            referencedRelation: "school"
             referencedColumns: ["id"]
           },
         ]

@@ -1,7 +1,8 @@
+"use client";
 import React from "react";
 import { Separator } from "../ui/separator";
-import { Database, Tables } from "@/supabase/supabase-types";
 import { Calendar } from "lucide-react";
+import { useRouter } from "nextjs-toploader/app";
 
 type JointCardProps = {
   exam: {
@@ -16,9 +17,11 @@ type JointCardProps = {
 };
 
 const JointCard = ({ exam }: JointCardProps) => {
+  const router = useRouter();
   return (
     <div
-      className="border-border bg-card flex h-[200px] cursor-pointer flex-col justify-between rounded-[10px] border p-3"
+      className="border-border bg-card/80 hover:bg-card flex h-[200px] cursor-pointer flex-col justify-between rounded-[10px] border p-3"
+      onClick={() => router.push(`/joint/${exam.joint_id}`)}
       key={exam.joint_id}
     >
       <div className="flex flex-col gap-[3px]">
